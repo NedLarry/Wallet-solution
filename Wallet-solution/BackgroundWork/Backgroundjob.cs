@@ -37,8 +37,7 @@ namespace Wallet_solution.BackgroundWork
 
                 ITrigger trigger = TriggerBuilder.Create()
                     .WithIdentity("trigger1", "group1")
-                    //.WithCronSchedule("0 0 24 * * ?")
-                    .WithCronSchedule("0 0/1 * * * ?")
+                    .WithCronSchedule("0 0 24 * * ?")
                     .ForJob("IntJob1", "group1")
                     .Build();
 
