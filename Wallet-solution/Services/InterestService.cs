@@ -1,4 +1,5 @@
-﻿using Wallet_solution.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Wallet_solution.Models;
 
 namespace Wallet_solution.Services
 {
@@ -21,7 +22,7 @@ namespace Wallet_solution.Services
             {
                 WalletDbContext context = scope.ServiceProvider.GetRequiredService<WalletDbContext>();
 
-                List<Wallet> wallets = context.Wallets.ToList();
+                List<Wallet> wallets = await context.Wallets.ToListAsync();
 
                 if (wallets.Any())
                 {
