@@ -30,7 +30,7 @@ namespace Wallet_solution.Handlers.CommandHandlers.UserHandlers
 
             var userWallets = await _walletService.CreateWalletForUser(newUser);
 
-            return new UserCreated { Fullname = String.Join(" ", newUser.FirstName, newUser.LastName), Wallets = userWallets };
+            return new UserCreated { Fullname = String.Join(" ", newUser.FirstName, newUser.LastName), Email = newUser.Email, Wallets = userWallets };
         }
     }
 }

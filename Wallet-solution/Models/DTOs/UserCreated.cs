@@ -4,6 +4,8 @@
     {
         public string? Fullname { get; set; }
 
+        public string? Email { get; set; }
+
         public List<WalletView> Wallets { get; set; } = new List<WalletView>();
 
         public string? Error { get; set; }

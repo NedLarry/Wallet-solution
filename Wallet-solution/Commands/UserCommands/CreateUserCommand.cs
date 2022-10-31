@@ -20,6 +20,11 @@ namespace Wallet_solution.Commands.UserCommands
 
         }
 
+        public CreateUserCommand()
+        {
+
+        }
+
         [Required]
         public string? FirstName { get; set; }
 

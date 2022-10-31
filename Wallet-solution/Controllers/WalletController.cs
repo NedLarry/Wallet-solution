@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Wallet_solution.BackgroundWork;
@@ -12,13 +13,13 @@ namespace Wallet_solution.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class WalletController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly Backgroundjob _backJob;
-        private readonly WalletDbContext _context;
 
-        public WalletController(IMediator _mediator, Backgroundjob _backJob, WalletDbContext _context)
+        public WalletController(IMediator _mediator, Backgroundjob _backJob)
         {
             this._mediator = _mediator;
             this._backJob = _backJob;
@@ -44,7 +45,10 @@ namespace Wallet_solution.Controllers
         [HttpGet("give-interest")]
         public async Task<ActionResult> GiveThyPeopleMoney()
         {
-            await Task.Run(() => _backJob.ScheduleInterestJob());
+            await Task.Run(() => _backJob.ProducerJob());
+
+            await Task.Run(() => _backJob.ConsumerJob());
+
             return Ok("Background service started");
         }
     }

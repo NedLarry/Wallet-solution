@@ -13,6 +13,10 @@ namespace Wallet_solution.Commands.UserCommands
             this.Password = Password;
         }
 
+        public UserLoginCommand()
+        {
+
+        }
         public string? Email { get; set; }
 
         public string? Password { get; set; }
