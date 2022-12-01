@@ -1,10 +1,11 @@
 ﻿using FluentValidation;
 using MediatR;
 using System.ComponentModel.DataAnnotations;
+using Wallet_solution.Models.DTOs;
 
 namespace Wallet_solution.Commands.UserCommands
 {
-    public class UserLoginCommand: IRequest<string>
+    public class UserLoginCommand: IRequest<ResponseModel>
     {
         public UserLoginCommand(string Email, string Password)
         {

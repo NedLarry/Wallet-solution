@@ -5,7 +5,7 @@ using Wallet_solution.Services;
 
 namespace Wallet_solution.Handlers.QueryHandlers.UserQueryHandlers
 {
-    public class GetUserTransactionsQueryHandler : IRequestHandler<GetUserTransactionsQuery, UserTransactions>
+    public class GetUserTransactionsQueryHandler : IRequestHandler<GetUserTransactionsQuery, ResponseModel>
     {
         private readonly TransactionService _transactionService;
 
@@ -14,7 +14,7 @@ namespace Wallet_solution.Handlers.QueryHandlers.UserQueryHandlers
             this._transactionService = _transactionService;
         }
 
-        public async Task<UserTransactions> Handle(GetUserTransactionsQuery request, CancellationToken cancellationToken)
+        public async Task<ResponseModel> Handle(GetUserTransactionsQuery request, CancellationToken cancellationToken)
         {
             var result = await Task.Run(() =>
             {

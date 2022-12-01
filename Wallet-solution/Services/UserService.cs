@@ -60,14 +60,14 @@ namespace Wallet_solution.Services
             }
         }
 
-        public async Task<string> FundWallet(FundWalletCommand fundWallet)
+        public async Task<ResponseModel> FundWallet(FundWalletCommand fundWallet)
         {
 
             try
             {
                 Wallet userWallet = _dbContext.Wallets.First(w => w.AccountNumber.Equals(fundWallet.AccountNumber));
 
-                if (userWallet is null) return $"Wallet with accountNumber: {fundWallet.AccountNumber} not found.";
+                if (userWallet is null) return null;
 
                 User walletUser = _dbContext.Users.First(u => u.Id.Equals(userWallet.UserId));
 
@@ -77,7 +77,7 @@ namespace Wallet_solution.Services
                 {
                     TransactionType = TransactionType.CREDIT,
                     TransactionAmount = fundWallet.Amount,
-                    UserId = walletUser.Id,
+                    UserId = userWallet.UserId,
                     AccountNumber = fundWallet.AccountNumber
                     
                 });
@@ -86,28 +86,49 @@ namespace Wallet_solution.Services
 
                 await _dbContext.SaveChangesAsync();
 
-                return $"Your new Account Status\n{userWallet}";
+                return new ResponseModel
+                {
+                    Success = true,
+                    ErrorMessage = string.Empty,
+                    Data = new WalletBalanceView
+                    {
+                        AccountNumber = userWallet.AccountNumber,
+                        AccountName = String.Join(" ", userWallet.User.FirstName, userWallet.User.LastName),
+                        Balance = userWallet.WalletType.Equals(AccountType.DOLLAR) ? $"$ {userWallet.Balance}" : $"# {userWallet.Balance}"
+                    }
+                };
 
             }catch(Exception ex)
             {
-                return $"Error funding wallet with accountNumber: {fundWallet.AccountNumber}.\nError: {ex.Message}";
+                return new ResponseModel
+                {
+                    Success = false,
+                    ErrorMessage = $"Error funding wallet with account number: {fundWallet.AccountNumber}"
+                };
             }
         }
 
-        public async Task<string> WithdrawFund(WithdrawFundCommand withdrawFund)
+        public async Task<ResponseModel> WithdrawFund(WithdrawFundCommand withdrawFund)
         {
             try
             {
                 Wallet userWallet = _dbContext.Wallets.First(w => w.AccountNumber.Equals(withdrawFund.AccountNumber));
 
-                if (userWallet is null) 
-                    throw new Exception($"Wallet with accountNumber: {withdrawFund.AccountNumber} not found.");
+                if (userWallet is null)
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        ErrorMessage = $"Wallet with accountNumber: {withdrawFund.AccountNumber} not found."
+                    };
 
                 User walletUser = _dbContext.Users.First(u => u.Id.Equals(userWallet.UserId));
 
                 if (withdrawFund.Amount > userWallet.Balance || userWallet.Balance == 0)
-                    throw new Exception
-                        ($"Insufficient funds. Current balance for account: {withdrawFund.AccountNumber}\n{userWallet.PrintCurrentAccountBalance()}");
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        ErrorMessage = $"Insufficient funds. Current balance for account: {withdrawFund.AccountNumber}\n{userWallet.PrintCurrentAccountBalance()}"
+                    };
 
                 userWallet.Balance -= withdrawFund.Amount;
 
@@ -123,36 +144,47 @@ namespace Wallet_solution.Services
 
                 await _dbContext.SaveChangesAsync();
 
-                return $"Your new Account Status\n{userWallet}";
+                return new ResponseModel
+                {
+                    Success = true,
+                    Data = $"Your new Account Status\n{userWallet}"
+                };
 
             }
             catch (Exception ex)
             {
-                return $"Error funding wallet with accountNumber: {withdrawFund.AccountNumber}.\nError: {ex.Message}";
+                return new ResponseModel
+                {
+                    Success = false,
+                    ErrorMessage = $"Error funding wallet with accountNumber: {withdrawFund.AccountNumber}.\nError: {ex.Message}"
+                };
             }
         }
 
-        public async Task<string> TransferFund(TransferFundCommand transferFund)
+        public async Task<ResponseModel> TransferFund(TransferFundCommand transferFund)
         {
             try
             {
                 Wallet userWallet = _dbContext.Wallets.First(w => w.AccountNumber.Equals(transferFund.AccountNumber));
 
                 if (userWallet is null)
-                    throw new Exception($"Wallet with accountNumber: {transferFund.AccountNumber} not found.");
+                    return new ResponseModel { Success = false, ErrorMessage = $"Wallet with accountNumber: {transferFund.AccountNumber} not found." };
 
                 User user = _dbContext.Users.First(u => u.Id.Equals(userWallet.UserId));
-
 
                 Wallet recipientWallet = _dbContext.Wallets.First(w => w.AccountNumber.Equals(transferFund.RecipientAccountNumber));
 
                 if (recipientWallet is null)
-                    throw new Exception($"Recipient accountNumber: {transferFund.AccountNumber} not found.");
+                    return new ResponseModel { Success = false, ErrorMessage = $"Recipient accountNumber: {transferFund.AccountNumber} not found." };
 
                 User recipientUser = _dbContext.Users.First(u => u.Id.Equals(recipientWallet.UserId));
 
                 if (transferFund.Amount > userWallet.Balance || userWallet.Balance == 0)
-                    throw new Exception($"Insufficient funds. Current balance for account: {transferFund.AccountNumber}. {userWallet.PrintCurrentAccountBalance()}");
+                    return new ResponseModel
+                    {
+                        Success = false,
+                        ErrorMessage = $"Insufficient funds. Current balance for account: {transferFund.AccountNumber}. {userWallet.PrintCurrentAccountBalance()}"
+                    };
 
                 userWallet.Balance -= transferFund.Amount;
 
@@ -178,16 +210,20 @@ namespace Wallet_solution.Services
 
                 await _dbContext.SaveChangesAsync();
 
-                return $"Your new Account Status\n{userWallet}";
+                return new ResponseModel { Success = true, Data = $"Your new Account Status\n{userWallet}" };
 
             }
             catch (Exception ex)
             {
-                return $"Error sending fund to wallet with accountNumber: {transferFund.RecipientAccountNumber}.\nError: {ex.Message}";
+                return new ResponseModel
+                {
+                    Success = false,
+                    ErrorMessage = $"Error sending fund to wallet with accountNumber: {transferFund.RecipientAccountNumber}"
+                };
             }
         }
 
-        public async Task<List<UserView>> GetUsers(GetUserQuery query)
+        public async Task<ResponseModel> GetUsers(GetUserQuery query)
         {
             try
             {
@@ -220,12 +256,17 @@ namespace Wallet_solution.Services
                     });
                 });
 
-                return userViews;
+                return new ResponseModel
+                {
+                    Success = true,
+                    ErrorMessage = string.Empty,
+                    Data = userViews
+                };
 
 
             }catch(Exception ex)
             {
-                return null;
+                return new ResponseModel { Success = false, ErrorMessage = $"Error fetching users.\nError: {ex.Message}" };
             }
         }
     }

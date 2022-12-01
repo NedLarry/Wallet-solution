@@ -6,7 +6,7 @@ using Wallet_solution.Models.DTOs;
 
 namespace Wallet_solution.Commands.UserCommands
 {
-    public class CreateUserCommand: IRequest<UserCreated>
+    public class CreateUserCommand: IRequest<ResponseModel>
     {
         //Fluentvalidation needed
         public CreateUserCommand(string FirstName, string LastName, string Email, string password)

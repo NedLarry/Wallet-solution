@@ -6,7 +6,7 @@ using Wallet_solution.Services;
 
 namespace Wallet_solution.Handlers.CommandHandlers.UserHandlers
 {
-    public class UserLoginCommandHandler : IRequestHandler<UserLoginCommand, string>
+    public class UserLoginCommandHandler : IRequestHandler<UserLoginCommand, ResponseModel>
     {
 
         private readonly AuthenticationService _authService;
@@ -18,7 +18,7 @@ namespace Wallet_solution.Handlers.CommandHandlers.UserHandlers
             this._dbContext = _dbContext;
         }
 
-        public async Task<string> Handle(UserLoginCommand request, CancellationToken cancellationToken)
+        public async Task<ResponseModel> Handle(UserLoginCommand request, CancellationToken cancellationToken)
         {
             var result = await Task.Run(() =>
             {
@@ -28,7 +28,14 @@ namespace Wallet_solution.Handlers.CommandHandlers.UserHandlers
                 return $"Error trying to Login user.";
             });
 
-            return result;
+            if (result.Contains("Error")) return new ResponseModel { Success = false, ErrorMessage = result };
+
+            return new ResponseModel
+            {
+                Success = true,
+                ErrorMessage = string.Empty,
+                Data = result
+            };
         }
     }
 }

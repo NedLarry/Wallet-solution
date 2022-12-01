@@ -1,10 +1,11 @@
 ﻿using MediatR;
+using Wallet_solution.Models.DTOs;
 using Wallet_solution.Queries.UserQuery;
 using Wallet_solution.Services;
 
 namespace Wallet_solution.Handlers.QueryHandlers.UserQueryHandlers
 {
-    public class GetWalletBalanceQueryHandler : IRequestHandler<GetWalletBalanceQuery, string>
+    public class GetWalletBalanceQueryHandler : IRequestHandler<GetWalletBalanceQuery, ResponseModel>
     {
         private readonly WalletService _walletService;
 
@@ -13,7 +14,7 @@ namespace Wallet_solution.Handlers.QueryHandlers.UserQueryHandlers
             this._walletService = _walletService;
         }
 
-        public async Task<string> Handle(GetWalletBalanceQuery request, CancellationToken cancellationToken)
+        public async Task<ResponseModel> Handle(GetWalletBalanceQuery request, CancellationToken cancellationToken)
         {
             var result = await Task.Run(() =>
             {

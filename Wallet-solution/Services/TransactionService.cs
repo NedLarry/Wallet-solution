@@ -14,7 +14,7 @@ namespace Wallet_solution.Services
         }
 
 
-        public UserTransactions GetTransactionForUser(GetUserTransactionsQuery query)
+        public ResponseModel GetTransactionForUser(GetUserTransactionsQuery query)
         {
             try
             {
@@ -32,21 +32,26 @@ namespace Wallet_solution.Services
                     TransactionType = t.TransactionType.ToString()
                 }));
 
-                return new UserTransactions
+                return new ResponseModel
                 {
-                    userId = user.Id,
-                    Fullname = string.Join(" ", user.FirstName, user.LastName),
-                    Transactions = transactions,
+                    Success = true,
+                    ErrorMessage = string.Empty,
+                    Data = new UserTransactions
+                    {
+                        userId = user.Id,
+                        Fullname = string.Join(" ", user.FirstName, user.LastName),
+                        Transactions = transactions,
+                    }
                 };
 
             }catch (Exception ex)
             {
                 var message = $"Error fetching transactions for user: {query.userId}";
-                return new UserTransactions { Fullname = $"{message}\nError: {ex.Message}" };
+                return new ResponseModel { Success = false, ErrorMessage = $"{message}" };
             }
         }
 
-        public UserTransactionView GetTransactionForWallet(GetTransactionForWalletQuery query)
+        public ResponseModel GetTransactionForWallet(GetTransactionForWalletQuery query)
         {
             try
             {
@@ -73,18 +78,23 @@ namespace Wallet_solution.Services
                 decimal debitTotal = transactions.Where(t => t.TransactionType.Equals(TransactionType.DEBIT.ToString()))
                     .Sum(t => t.Amount);
 
-                return new UserTransactionView
+                return new ResponseModel
                 {
-                    userId = user.Id,
-                    Fullname = string.Join(" ", user.FirstName, user.LastName),
-                    Transactions = transactions,
-                    CurrentWalletBalance = (creditTotal - debitTotal)
+                    Success = true,
+                    ErrorMessage = string.Empty,
+                    Data = new UserTransactionView
+                    {
+                        userId = user.Id,
+                        Fullname = string.Join(" ", user.FirstName, user.LastName),
+                        Transactions = transactions,
+                        CurrentWalletBalance = (creditTotal - debitTotal)
+                    }
                 };
 
             }catch (Exception ex)
             {
                 var message = $"Error fetching transactions for wallet: {query.AccountNumber}";
-                return new UserTransactionView { Fullname = $"{message}\nError: {ex.Message}" };
+                return new ResponseModel { Success = false, ErrorMessage = $"{message}" };
             }
         }
     }

@@ -58,12 +58,14 @@ namespace Wallet_solution.Services
 
                 });
 
-            }catch (Exception ex)
+                return userWallets;
+
+            }
+            catch (Exception ex)
             {
                 return null;
             }
 
-            return userWallets;
 
             long CreateAccountNumber()
             {
@@ -81,7 +83,7 @@ namespace Wallet_solution.Services
             }
         }
 
-        public UserView GetWalletsForUser(GetUserWalletsQuery query)
+        public ResponseModel GetWalletsForUser(GetUserWalletsQuery query)
         {
             try
             {
@@ -99,15 +101,20 @@ namespace Wallet_solution.Services
                     WalletType = w.WalletType.ToString()
                 }));
 
-                return new UserView { userId = user.Id, Fullname = String.Join(" ", user.FirstName, user.LastName), Wallets = wallets };
+                return new ResponseModel
+                {
+                    Success = true,
+                    ErrorMessage = string.Empty,
+                    Data = new UserView { userId = user.Id, Fullname = String.Join(" ", user.FirstName, user.LastName), Wallets = wallets }
+                };
 
             }catch(Exception ex)
             {
-                return new UserView { Fullname = ex.Message };
+                return new ResponseModel { Success = false,  ErrorMessage = $"Error getting user Wallets" };
             }
         }
 
-        public string GetWalletBalance(GetWalletBalanceQuery query)
+        public ResponseModel GetWalletBalance(GetWalletBalanceQuery query)
         {
             try
             {
@@ -115,14 +122,24 @@ namespace Wallet_solution.Services
 
                 userWallet.User = _dbContext.Users.First(u => u.Id.Equals(userWallet.UserId));
 
-                return $"Account summary\n{userWallet}";
+                return new ResponseModel
+                {
+                    Success = true,
+                    ErrorMessage = string.Empty,
+                    Data = new WalletBalanceView
+                    {
+                        AccountName = string.Join(" ", userWallet.User.FirstName, userWallet.User.LastName),
+                        AccountNumber = userWallet.AccountNumber,
+                        Balance = userWallet.WalletType.Equals(AccountType.DOLLAR) ? $"${userWallet.Balance}" : $"#{userWallet.Balance}"
+                    }
+                };
 
             }catch(Exception ex)
             {
-                return $"Error getting wallet balance with accountNumber: {query.AccountNumber}\nError: {ex.Message}";
+                return new ResponseModel { Success = false, ErrorMessage = $"Error getting wallet balance for account number: {query.AccountNumber}" };
             }
         }
 
-        public List<Wallet> GetAllWallets() => _dbContext.Wallets.ToList();
+        public ResponseModel GetAllWallets() => new ResponseModel { Success = true, Data = _dbContext.Wallets.ToList() };
     }
 }

@@ -3,7 +3,7 @@ using Wallet_solution.Models.DTOs;
 
 namespace Wallet_solution.Queries.UserQuery
 {
-    public class GetUserWalletsQuery : IRequest<UserView>
+    public class GetUserWalletsQuery : IRequest<ResponseModel>
     {
         public GetUserWalletsQuery(Guid Id)
         {
@@ -13,7 +13,7 @@ namespace Wallet_solution.Queries.UserQuery
         public Guid userId { get; set; }   
     }
 
-    public class GetWalletBalanceQuery : IRequest<string>
+    public class GetWalletBalanceQuery : IRequest<ResponseModel>
     {
 
         public GetWalletBalanceQuery(long AccountNumber)
